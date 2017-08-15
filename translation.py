@@ -2,7 +2,7 @@
 import re
 import os
 import json
-from firebase import firebase
+#from firebase import firebase
 from canmsgs import *
 
 class NoTranslationData(Exception):
@@ -22,7 +22,7 @@ def translateCAN(filename):
     # if there is it processes it and saves it as a new file
 
     # firebase
-    fb = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com', None)
+    # fb = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com', None)
     
     for i in range(7):
         # the name of the data
@@ -37,7 +37,10 @@ def translateCAN(filename):
             highlow = id[i].get('highlow')
 
             # processes the file for the data
-            processFileJSON(filename, name, byte, coeff, highlow, fb)
+            #processFileJSON(filename, name, byte, coeff, highlow, fb)
+            processFile(filename, name, byte, coeff, highlow)
+            
+
 
             # if the byte is a high byte, the preceding byte gets processed with it,
             # so it does not require a separate analysis and is skipped
@@ -53,26 +56,26 @@ def getID(filename):
     split = re.split("\W", line)
     return split[5]
 
-# param filename: the name of the socketCAN log file
-# param byte: the specific byte in the data
-# param highlow: true/false if there is a high and low byte
-# param coeff: the coefficient to translate the decimal
-def processFileJSON(filename, name, byte, coeff, highlow, fb):
+
+def processFile(filename, name, byte, coeff, highlow):
         # get lines from file
         file = open(filename, "r")
         lines = file.readlines()
         file.close()
 
+        # create new filename
+        filename = "TRANSLATED_" + name + filename
+        newFile = open(filename, "w")
+
         # process old file saving into new file
         for line in lines:
-            processLineJSON(byte, coeff, highlow, line, fb)
+            processLine(byte, coeff, highlow, line, newFile)
 
-# param line: the currene line in the text file
-# param byte: the specific byte in the data
-# param highlow: true/false if there is a high and low byte
-# param coeff: the coefficient to translate the decimal
-# param newFile: the file to save the data to
-def processLineJSON(byte, coeff, highlow, line, fb):
+        newFile.close()
+
+
+
+def processLine(byte, coeff, highlow, line, newFile):
     # split line into seperate packets
     split = re.split("\W", line)
 
@@ -84,9 +87,37 @@ def processLineJSON(byte, coeff, highlow, line, fb):
     translatedD = translation(byte, coeff, highlow, d)
 
     # write the data to the new file
-    json = {'time' : t, 'ID' : i, 'data' : str(translatedD)}
-    post = fb.post('/test', json)   
+    newFile.write(t + " ")
+    newFile.write(i + " ")
+    newFile.write(str(translatedD) + "\n")
 
+
+##def processFileJSON(filename, name, byte, coeff, highlow, fb):
+##        # get lines from file
+##        file = open(filename, "r")
+##        lines = file.readlines()
+##        file.close()
+##
+##        # process old file saving into new file
+##        for line in lines:
+##            processLineJSON(byte, coeff, highlow, line, fb)
+##
+##
+##def processLineJSON(byte, coeff, highlow, line, fb):
+##    # split line into seperate packets
+##    split = re.split("\W", line)
+##
+##    t = split[1] + "." + split[2]   # time vale
+##    i = split[5]                    # ID
+##    d = split[6]                    # data
+##
+##    # translate the data
+##    translatedD = translation(byte, coeff, highlow, d)
+##
+##    # write the data to the new file
+##    json = {'time' : t, 'ID' : i, 'data' : str(translatedD)}
+##    post = fb.post('/test', json)   
+##
 
 # param data: the hex data to translate
 # param byte: the specific byte in the data
@@ -117,45 +148,5 @@ def translation(byte, coeff, highlow, data):
 
 
 
-### param filename: the name of the socketCAN log file
-### param byte: the specific byte in the data
-### param highlow: true/false if there is a high and low byte
-### param coeff: the coefficient to translate the decimal
-##def processFile(filename, name, byte, coeff, highlow):
-##        # get lines from file
-##        file = open(filename, "r")
-##        lines = file.readlines()
-##        file.close()
-##
-##        # create new filename
-##        filename = filename[:-3] + "TRANSLATED_" + name + ".txt"
-##        newFile = open(filename, "w")
-##
-##        # process old file saving into new file
-##        for line in lines:
-##            processLine(byte, coeff, highlow, line, newFile)
-##
-##        newFile.close()
-##
-### param line: the currene line in the text file
-### param byte: the specific byte in the data
-### param highlow: true/false if there is a high and low byte
-### param coeff: the coefficient to translate the decimal
-### param newFile: the file to save the data to
-##def processLine(byte, coeff, highlow, line, newFile):
-##    # split line into seperate packets
-##    split = re.split("\W", line)
-##
-##    t = split[1] + "." + split[2]   # time vale
-##    i = split[5]                    # ID
-##    d = split[6]                    # data
-##
-##    # translate the data
-##    translatedD = translation(byte, coeff, highlow, d)
-##
-##    # write the data to the new file
-##    newFile.write(t + " ")
-##    newFile.write(i + " ")
-##    newFile.write(str(translatedD) + "\n")
 
 
