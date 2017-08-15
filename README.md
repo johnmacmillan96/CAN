@@ -10,7 +10,7 @@ By using a Raspberry Pi and a PiCAN2, it's possible to log the CAN messages dire
 
 ## Setting up the Raspberry Pi 3
 
-To enable the use of the PiCAN2 board, you need to first configure your RPi. Make sure that you have the newest version of the OS installed, and everything is up to date. Open up a new terminal window, and enter:
+To enable the use of the PiCAN2 board, you need to first configure your RPi. Make sure that you have the newest version of the OS installed, and that everything is up to date. Open up a new terminal window, and enter:
 ```
 sudo apt-get update
 sudo apt-get upgrade
@@ -18,7 +18,7 @@ sudo apt-get autoremove
 sudo reboot
 ```
 
-Now install the `can-utils` package, which includes all of the executable for viewing, sniffing, and logging the CAN messages. In the terminal, enter:
+Next, install the `can-utils` package, which includes all of the executable for viewing, sniffing, and logging the CAN messages. In the terminal, enter:
 ```
 sudo apt-get install can-utils
 ```
@@ -27,7 +27,7 @@ Next, we have to edit the boot configuration file to recognize the PiCAN2 board 
 ```
 sudo nano /boot/config.txt
 ```
-This bring up the file, and allows you to make changes. Add the following text, then exit out of the file with CTRL-X, making sure to save your changes:
+This brings up the text file, and allows you to make changes. Add the following text, then exit out of the file with CTRL-X, making sure to save your changes:
 ```
 dtparam=spi=on
 dtoverlay=mcp2515-can0,oscillator=16000000,interrupt=25
@@ -45,7 +45,6 @@ sudo modprobe vcan
 This allows the module vcan to be loaded to the Linux kernal. Next, we will add a new vcan device. I'm going to call it `vcan0`. In the terminal, enter:
 ```
 sudo ip link add dev vcan0 type vcan
-sudo ip link set up vcan0
 sudo ip link set vcan0 up
 ```
 Check to make sure the device was added by looking for it when you enter this in the terminal:
@@ -64,9 +63,15 @@ sudo modprobe vcan
 ```
 The next step is the same except for the set up. *USE YOUR VEHICLE-SPECIFIC BITRATE*
 ```
-$ sudo ip link add dev can0 type can
-$ sudo ip link set can0 type can bitrate 500000 listen-only on
+sudo ip link add dev can0 type can
+sudo ip link set can0 type can bitrate 500000 listen-only on
 ```
+Check to make sure the device was added by looking for it when you enter this in the terminal:
+```
+ifconfig
+```
+You should see it along with any other devices you have loaded.
+
 
 
 
