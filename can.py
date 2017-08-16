@@ -5,7 +5,7 @@ from canmsgs import *
 
 wm = pyinotify.WatchManager()
 closeMask = pyinotify.IN_CLOSE_WRITE
-#moveMask = pyinotify.IN_MOVED_TO
+moveMask = pyinotify.IN_MOVED_TO
 
 log = open('log.txt', 'w')
 
@@ -27,7 +27,7 @@ class EventHandler(pyinotify.ProcessEvent):
 
         # starts a new candump
         # print('Opening new camdump...\n')
-        subprocess.call(['candump', '-l', '-n', '100', 'vcan0'])
+        subprocess.call(['candump', '-l', '-n', '10', 'vcan0'])
         
     # This method processes the candump files
     def process_IN_MOVED_TO(self, event):
@@ -44,6 +44,6 @@ handler = EventHandler()
 notifier = pyinotify.Notifier(wm, handler)
 
 wm.add_watch('/home/pi/Documents/CAN/', closeMask)
-#wm.add_watch('/home/pi/Documents/CAN/raw/', moveMask)
+wm.add_watch('/home/pi/Documents/CAN/raw/', moveMask)
 
 notifier.loop()

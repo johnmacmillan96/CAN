@@ -2,7 +2,7 @@
 import re
 import os
 import json
-#from firebase import firebase
+from firebase import firebase
 from canmsgs import *
 
 class NoTranslationData(Exception):
@@ -22,7 +22,7 @@ def translateCAN(filename):
     # if there is it processes it and saves it as a new file
 
     # firebase
-    # fb = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com', None)
+    fb = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com', None)
     
     for i in range(7):
         # the name of the data
@@ -37,8 +37,8 @@ def translateCAN(filename):
             highlow = id[i].get('highlow')
 
             # processes the file for the data
-            #processFileJSON(filename, name, byte, coeff, highlow, fb)
-            processFile(filename, name, byte, coeff, highlow)
+            processFileJSON(filename, name, byte, coeff, highlow, fb)
+            #processFile(filename, name, byte, coeff, highlow)
             
 
 
@@ -92,32 +92,35 @@ def processLine(byte, coeff, highlow, line, newFile):
     newFile.write(str(translatedD) + "\n")
 
 
-##def processFileJSON(filename, name, byte, coeff, highlow, fb):
-##        # get lines from file
-##        file = open(filename, "r")
-##        lines = file.readlines()
-##        file.close()
-##
-##        # process old file saving into new file
-##        for line in lines:
-##            processLineJSON(byte, coeff, highlow, line, fb)
-##
-##
-##def processLineJSON(byte, coeff, highlow, line, fb):
-##    # split line into seperate packets
-##    split = re.split("\W", line)
-##
-##    t = split[1] + "." + split[2]   # time vale
-##    i = split[5]                    # ID
-##    d = split[6]                    # data
-##
-##    # translate the data
-##    translatedD = translation(byte, coeff, highlow, d)
-##
-##    # write the data to the new file
-##    json = {'time' : t, 'ID' : i, 'data' : str(translatedD)}
-##    post = fb.post('/test', json)   
-##
+def processFileJSON(filename, name, byte, coeff, highlow, fb):
+    # get lines from file
+    file = open(filename, "r")
+    lines = file.readlines()
+    file.close()
+    
+    jsonList = []
+
+    # process old file saving into new file
+    for line in lines:
+        processLineJSON(byte, coeff, highlow, line, jsonList)
+
+    post = fb.post('/test', {'data' : jsonList})   
+
+
+def processLineJSON(byte, coeff, highlow, line, jsonList):
+    # split line into seperate packets
+    split = re.split("\W", line)
+
+    t = split[1] + "." + split[2]   # time vale
+    i = split[5]                    # ID
+    d = split[6]                    # data
+
+    # translate the data
+    translatedD = translation(byte, coeff, highlow, d)
+
+    # write the data to the new file
+    json = {'time' : t, 'ID' : i, 'data' : str(translatedD)}
+    jsonList.append(json)
 
 # param data: the hex data to translate
 # param byte: the specific byte in the data
