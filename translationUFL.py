@@ -2,7 +2,7 @@
 import re
 import os
 import json
-from firebase import firebase
+import requests
 from canmsgs import *
 
 class NoTranslationData(Exception):
@@ -21,8 +21,7 @@ def translateCAN(filename):
     # loops through each byte, first checking if there is any data on the byte,
     # if there is it processes it and saves it as a new file
 
-    # firebase
-    fb = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com', None)
+    rest = 'https://PISRV01:5460/connectordata/REST endpoint/'
     
     for i in range(7):
         # the name of the data
@@ -37,7 +36,7 @@ def translateCAN(filename):
             highlow = id[i].get('highlow')
 
             # processes the file for the data
-            processFileJSON(filename, name, byte, coeff, highlow, fb)
+            processFile(filename, name, byte, coeff, highlow, rest)
             #processFile(filename, name, byte, coeff, highlow)
             
 
@@ -57,14 +56,14 @@ def getID(filename):
     return split[5]
 
 
-def processFile(filename, name, byte, coeff, highlow):
+def processFile(filename, name, byte, coeff, highlow, rest):
         # get lines from file
         file = open(filename, "r")
         lines = file.readlines()
         file.close()
 
         # create new filename
-        filename = "TRANSLATED_" + name + filename
+        filename = filename[-3] + name + 'TRANSLATED.txt'
         newFile = open(filename, "w")
 
         # process old file saving into new file
@@ -72,6 +71,10 @@ def processFile(filename, name, byte, coeff, highlow):
             processLine(byte, coeff, highlow, line, newFile)
 
         newFile.close()
+
+        headers = {'UserName' : 'passwordispi', 'Password' : 'pi'}
+        files = {'file' : open(filename, 'rb')} 
+        r = requests.post(rest, files=files, headers=headers)
 
 
 
@@ -92,35 +95,35 @@ def processLine(byte, coeff, highlow, line, newFile):
     newFile.write(str(translatedD) + "\n")
 
 
-def processFileJSON(filename, name, byte, coeff, highlow, fb):
-    # get lines from file
-    file = open(filename, "r")
-    lines = file.readlines()
-    file.close()
-    
-    jsonList = []
-
-    # process old file saving into new file
-    for line in lines:
-        processLineJSON(byte, coeff, highlow, line, jsonList)
-
-    post = fb.put('/test', name, {'data' : jsonList})   
-
-
-def processLineJSON(byte, coeff, highlow, line, jsonList):
-    # split line into seperate packets
-    split = re.split("\W", line)
-
-    t = split[1] + "." + split[2]   # time vale
-    i = split[5]                    # ID
-    d = split[6]                    # data
-
-    # translate the data
-    translatedD = translation(byte, coeff, highlow, d)
-
-    # write the data to the new file
-    json = {'time' : t, 'ID' : i, 'data' : str(translatedD)}
-    jsonList.append(json)
+##def processFileJSON(filename, name, byte, coeff, highlow, fb):
+##    # get lines from file
+##    file = open(filename, "r")
+##    lines = file.readlines()
+##    file.close()
+##    
+##    jsonList = []
+##
+##    # process old file saving into new file
+##    for line in lines:
+##        processLineJSON(byte, coeff, highlow, line, jsonList)
+##
+##    post = fb.post('/test', {'data' : jsonList})   
+##
+##
+##def processLineJSON(byte, coeff, highlow, line, jsonList):
+##    # split line into seperate packets
+##    split = re.split("\W", line)
+##
+##    t = split[1] + "." + split[2]   # time vale
+##    i = split[5]                    # ID
+##    d = split[6]                    # data
+##
+##    # translate the data
+##    translatedD = translation(byte, coeff, highlow, d)
+##
+##    # write the data to the new file
+##    json = {'time' : t, 'ID' : i, 'data' : str(translatedD)}
+##    jsonList.append(json)
 
 # param data: the hex data to translate
 # param byte: the specific byte in the data

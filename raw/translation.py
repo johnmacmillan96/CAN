@@ -104,7 +104,7 @@ def processFileJSON(filename, name, byte, coeff, highlow, fb):
     for line in lines:
         processLineJSON(byte, coeff, highlow, line, jsonList)
 
-    post = fb.put('/test', name, {'data' : jsonList})   
+    post = fb.put('/test', {'data' : jsonList})   
 
 
 def processLineJSON(byte, coeff, highlow, line, jsonList):

@@ -1,6 +1,6 @@
 import pyinotify
 import subprocess
-from translation import *
+from translationUFL import *
 from canmsgs import *
 
 wm = pyinotify.WatchManager()
