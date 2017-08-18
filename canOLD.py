@@ -1,6 +1,6 @@
 import pyinotify
 import subprocess
-from translation import *
+from translationID import *
 from canmsgs import *
 
 wm = pyinotify.WatchManager()
@@ -27,7 +27,7 @@ class EventHandler(pyinotify.ProcessEvent):
 
         # starts a new candump
         # print('Opening new camdump...\n')
-        subprocess.call(['candump', '-l', '-n', '100', 'vcan0,284:7FF,59A:7FF'])
+        subprocess.call(['candump', '-l', '-n', '100', 'vcan0'])
         
     # This method processes the candump files
     def process_IN_MOVED_TO(self, event):
