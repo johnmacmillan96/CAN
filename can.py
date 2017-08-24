@@ -1,7 +1,7 @@
 import pyinotify
 import subprocess
-from translationID import *
-from canmsgs import *
+from translate2 import *
+from canmsgs2 import *
 
 wm = pyinotify.WatchManager()
 closeMask = pyinotify.IN_CLOSE_WRITE
