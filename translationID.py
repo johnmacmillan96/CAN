@@ -9,37 +9,51 @@ from canmsgs import *
 class NoTranslationData(Exception):
     pass
 
+# param filename
+#   the file to process
 def translateCAN(filename):
 
-    # firebase
+    # accesses the firebase
     fb = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com', None)
 
     # process the file
     processFileJSON(filename, fb)
 
+
+# param filename
+#   the file to process
+# param fb
+#   the firebase db to send the data to
 def processFileJSON(filename, fb):
     # get lines from file
     file = open(filename, "r")
     lines = file.readlines()
     file.close()
-    
+
+    # create an empty list to fill with json objects
     jsonList = []
 
     # process file while writing to jsonList
     for line in lines:
         processLineJSON(line, jsonList)
 
+    # uses a put command to send the list to the firebase db
     post = fb.put('/test', 'dump', jsonList)
 
 
+# param line
+#   the line of data to process. consists of a time, id, and data
+# param jsonList
+#
 def processLineJSON(line, jsonList):
-    # split line into seperate packets
+    # split line into seperate string
     split = re.split("\W", line)
 
-    time = split[1] + "." + split[2]   # time vale
-    id = split[5]                    # ID
-    data = split[6]                    # data
+    time = split[1] + "." + split[2]    # time vale
+    id = split[5]                       # ID
+    data = split[6]                     # data
 
+    # adds the string for dict look-up
     ID = ('ID' + id)
 
     # checks if there is translation data, otherwise raises exception
@@ -48,6 +62,7 @@ def processLineJSON(line, jsonList):
     else:
         raise NoTranslationData('There is no translation data for' + id)    
 
+    # loops through each byte of data
     for i in range(7):
         # the name of the data
         name = ID[i].get('name')
