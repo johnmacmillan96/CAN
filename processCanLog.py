@@ -3,7 +3,7 @@ import os
 import json
 import datetime
 from firebase import firebase
-from canmsgs2 import *
+from canmsgs import *
 
 
 class NoTranslationData(Exception):

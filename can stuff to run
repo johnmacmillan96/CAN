@@ -1,0 +1,19 @@
+# to set up:
+
+sudo ip link set can0 up type can bitrate 500000 listen-only on
+
+# to test:
+
+candump can0
+
+# to directory:
+
+cd /home/pi/Documents/CAN
+
+# to run (RUN EACH LINE IN A SEPERATE TERMINAL WINDOW, IN THIS ORDER):
+
+python canDirNotify.py
+
+python logDirNotify.py
+
+candump -l -n 100 can0,1DB:7ff,284:7ff,5A9:7ff,5BC:7ff,55B:7ff
