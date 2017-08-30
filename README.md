@@ -1,4 +1,4 @@
-# CANbus data collection using Raspberry Pi and OSIsoft PI System
+# Nissan LEAF CAN Bus data collection using Raspberry Pi and OSIsoft PI System
 
 A vehicle’s CAN (Controller Area Network) is its way of communicating between each of its electronic components through a central bus. They send strings of bits that identify which component is "talking," followed by its current status or state. Some examples of the time series data that gets communicated:
 
@@ -6,7 +6,7 @@ A vehicle’s CAN (Controller Area Network) is its way of communicating between 
 - Speed of the vehicle, RPM of each wheel
 - Flag warnings including: battery malfunction; high temperatures; and high current & voltage differentials  
 
-By using a Raspberry Pi and a PiCAN2, it's possible to log the CAN messages directly from the vehicle onto the RPi. From there, this collection of Python scripts used in conjunction with a dictionary of data translations can be used to turn the raw CANbus output into meaningful, interpretable data.
+By using a Raspberry Pi and a PiCAN2, it's possible to log the CAN messages directly from the vehicle onto the RPi. From there, this collection of Python scripts used in conjunction with a dictionary of data translations can be used to turn the raw CAN bus output into meaningful, interpretable data.
 
 ## Setting up the Raspberry Pi 3
 
@@ -55,7 +55,7 @@ You should see it along with any other devices you have loaded.
 
 
 ## Configuring a *real* CAN device
-This procedure is specific to the Nissan LEAF, but it very similar for other vehicles' CANbuses. The LEAF specifiic step is setting the `bitrate` to `500000`. Every vehicles CAN sends messages at a specefied bitrate, and the LEAF's happens to be 500,000. The most common ones are 33,333 bps, 50 Kbps, 83,333 bps, 100 Kbps, 125 Kbps, 250 Kbps, 500 Kbps, 800 Kpbs, and 1,000 Kbps. If you configure your device with the wrong bitrate, you will probably not recieve any data. 
+This procedure is specific to the Nissan LEAF, but it very similar for other vehicles' CAN buses. The LEAF specifiic step is setting the `bitrate` to `500000`. Every vehicles CAN sends messages at a specefied bitrate, and the LEAF's happens to be 500,000. The most common ones are 33,333 bps, 50 Kbps, 83,333 bps, 100 Kbps, 125 Kbps, 250 Kbps, 500 Kbps, 800 Kpbs, and 1,000 Kbps. If you configure your device with the wrong bitrate, you will probably not recieve any data. 
 
 Similarly to the virtual CAN setup, we start with the modprobe:
 ```
@@ -81,7 +81,34 @@ Run a simple `candump can0`, and you should see the steady flow of CAN messages.
 
 To save the data, explore different option of the `candump` command. `candump -l can0` logs all of the CAN frames, `candump -l can0,284:7ff` logs all CAN frames of message ID 284. There are many options here, you can refer to the can-utils documentation for more help, or http://www.cowfishstudios.com/blog/canned-pi-part1).
 
-## Using 
+## Logging, Translating, and Sending the Data to Google Firebase
+*PLEASE READ OVER THE PYTHON CODE BEFORE RUNNING. AGAIN, IT IS SPECIFIC TO THE NISSAN LEAF. IF YOU ARE ATTEMPTING THIS, MAKE SURE THAT YOUR OWN PARAMETERS ARE ALL ENTERED CORRECTLY*
+
+Make sure you have a dedicated directory on your RPi for the CAN bus data. Mine is locatied /home/pi/Documents/CAN. This is where all of the Python scripts will be run from, and where the log files will be stored. Also be sure to create a file inside the directory to store the log files once they are closed. Mine is /home/pi/Documents/CAN/log.
+
+To use the Python scripts, open 3 terminal windows on the RPi. In all of them, first cd to the correct directory:
+```
+sudo cd /home/pi/Documents/CAN
+```
+In the first terminal, enter:
+```
+python canDirNotify.py
+```
+In the second terminal, enter:
+```
+python logDirNotify.py
+```
+Make sure that you have the proper connections from the section above, then in the final terminal, enter:
+```
+candump -l -n 100 can0
+```
+This should open the pipeline for the data to be logged in batches of 100, translated, then sent to your Google Firebase.
+
+## Getting Data from Firebase to PI
+*This final step requires the use of the PI System, specifically the PI Data Archive, PI AF, and PI UFL Connector.*
+From a machine that is on the same domain as your PI System, run `firebaseToUFL.py`. This will check the Firebase every 0.5 seconds (can be configured in the code), and sends a `get` request which retrieves all of the data. It then builds out a long string, containing all of the formatted data, and sends a `put` request to the UFL Connector. *Enter your own UFL Connector's URL*
+
+
 
 
 
