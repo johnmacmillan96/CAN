@@ -10,7 +10,7 @@ By using a Raspberry Pi and a PiCAN2, it's possible to log the CAN messages dire
 
 ## Setting up the Raspberry Pi 3
 
-To enable the use of the PiCAN2 board, you need to first configure your RPi. Make sure that you have the newest version of the OS installed, and that everything is up to date. Open up a new terminal window, and enter:
+To enable the use of the PiCAN2 board, you need to first configure your RPi. Connect to your RPi's GUI in your preferred method (mine is with a HDMI to monitor, and USB mouse and keyboard). Make sure that you have the newest version of the OS installed, and that everything is up to date. Open up a new terminal window, and enter:
 ```
 sudo apt-get update
 sudo apt-get upgrade
@@ -71,6 +71,17 @@ Check to make sure the device was added by looking for it when you enter this in
 ifconfig
 ```
 You should see it along with any other devices you have loaded.
+
+## Collecting Data
+To collect data, make sure the PiCAN2 board is properlly installed and that you have a CAN device set up on your RPi. To make the actual connection, you can insert a 20-gauge wire into the CAN-H and CAN-L ports on the PiCAN2, and the OBDII port on your car (refer to this guide for help http://www.cowfishstudios.com/blog/canned-pi-part1)
+
+Once you have established the physcial connection, you can test that the data is being recieved by the RPi. My favorite way to do this was to connect the RPi to my laptop through ethernet, so I could use it's GUI. Make sure your car is on, and open up a terminal window on the RPi. 
+
+Run a simple `candump can0`, and you should see the steady flow of CAN messages. If you don't see the stream, then keep fiddling with the different OBDII ports (I found that many times I had them switched). *Be careful while plugging in and out of the OBDII port, it can be fragile!*
+
+To save the data, explore different option of the `candump` command. `candump -l can0` logs all of the CAN frames, `candump -l can0,284:7ff` logs all CAN frames of message ID 284. There are many options here, you can refer to the can-utils documentation for more help, or http://www.cowfishstudios.com/blog/canned-pi-part1).
+
+## Using 
 
 
 
