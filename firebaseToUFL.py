@@ -4,6 +4,8 @@ import requests
 from requests.auth import HTTPBasicAuth
 from firebase import firebase
 
+# Run this script on a machine that is on the same domain as the UFL Connector
+
 # access the firebase
 firebase = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com/', None)
 
