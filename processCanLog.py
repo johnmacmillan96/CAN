@@ -14,7 +14,8 @@ class NoTranslationData(Exception):
 def translateCAN(filename):
 
     # accesses the firebase
-    fb = firebase.FirebaseApplication('https://canbus-73c99.firebaseio.com', None)
+    # replace this with your firebase url
+    fb = firebase.FirebaseApplication('https://your-firebase-url.firebaseio.com', None)
 
     # process the file
     processFileJSON(filename, fb)

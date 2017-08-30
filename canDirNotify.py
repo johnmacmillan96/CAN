@@ -6,6 +6,7 @@ from canmsgs import *
 wm = pyinotify.WatchManager()
 closeMask = pyinotify.IN_CLOSE_WRITE
 
+# creates a log of the data dump
 log = open('log.txt', 'w')
 
 class EventHandler(pyinotify.ProcessEvent):
@@ -20,15 +21,24 @@ class EventHandler(pyinotify.ProcessEvent):
         print('Moving ' + event.name + '\n')
         log.write('Moving ' + event.name + '\n')
 
+        # replace this directory with the directory that the can logs are saved to
         subprocess.call(['mv', event.name, '/home/pi/Documents/CAN/log'])
 
         # starts a new candump
-        subprocess.call(['candump', '-l', '-n', '100', 'can0,1DB:7ff,284:7ff,5A9:7ff,5BC:7ff,55B:7ff'])
+        # replace can0 witht he name of your device
+        subprocess.call(['candump', '-l', '-n', '100', 'can0'])
         
 
+# creates a new handler object
 handler = EventHandler()
+
+# creates the notifier
 notifier = pyinotify.Notifier(wm, handler)
 
+# adds the directory to watch
+# replace this directory with the directory that the can logs are saved to
 wm.add_watch('/home/pi/Documents/CAN/', closeMask)
 
+
+# loops continuosly
 notifier.loop()

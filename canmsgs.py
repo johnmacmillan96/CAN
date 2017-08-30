@@ -1,3 +1,11 @@
+# This dictionary is specific to the Nissan LEAF 2015
+# You can build a similar dictionary for any car wiht a canbus,
+# but you will have to fill out the data yourself
+
+
+# Each 'IDXXX' consists of a list of 8 dictionaries
+# Each dictionary corresponds to 1 of 8 hexidecimal bytes
+
 canIds = {
 'ID1DB' : [
     {'name':'Battery Current Signal', 'coeff':0.5,'bitLength':11},

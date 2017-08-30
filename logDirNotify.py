@@ -6,8 +6,6 @@ from canmsgs import *
 wm = pyinotify.WatchManager()
 moveMask = pyinotify.IN_MOVED_TO
 
-log = open('log.txt', 'w')
-
 class EventHandler(pyinotify.ProcessEvent):
         
     # This method processes the candump log file
@@ -20,9 +18,14 @@ class EventHandler(pyinotify.ProcessEvent):
             print(error.args)
             
             
+# creates a new handler object
 handler = EventHandler()
+
+# creates the notifier
 notifier = pyinotify.Notifier(wm, handler)
 
+# adds the directory to watch
+# replace this directory with the directory that the can logs are saved to
 wm.add_watch('/home/pi/Documents/CAN/log/', moveMask)
 
 notifier.loop()
